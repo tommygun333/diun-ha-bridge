@@ -1,0 +1,40 @@
+{
+  "hosts": [
+    {
+      "name": "jellyfin",
+      "endpoint": "http://192.168.1.16:2375"
+    },
+    {
+      "name": "voice-AI",
+      "endpoint": "http://192.168.1.38:2375"
+    },
+    {
+      "name": "obico",
+      "endpoint": "http://192.168.1.28:2375"
+    },
+    {
+      "name": "nextcloud",
+      "endpoint": "http://192.168.1.12:2375"
+    },
+    {
+      "name": "nginx",
+      "endpoint": "http://192.168.1.33:2375"
+    },
+    {
+      "name": "vaultwarden",
+      "endpoint": "http://192.168.1.11:2375"
+    },
+    {
+      "name": "monitoring",
+      "endpoint": "http://192.168.1.13:2375"
+    },
+    {
+      "name": "pikvm",
+      "endpoint": "http://192.168.1.35:2375"
+    },
+    {
+      "name": "tailscale",
+      "endpoint": "http://192.168.1.14:2375"
+    }
+  ]
+}
