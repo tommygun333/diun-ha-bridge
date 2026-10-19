@@ -469,6 +469,27 @@ def compare_numeric_tuples(a, b):
     return 0
 
 
+def compare_linuxserver_versions(installed, available):
+    """Compare LinuxServer app/build versions, or return None."""
+    pattern = r"^v?(\d+(?:\.\d+)+)-ls(\d+)$"
+    local = re.fullmatch(pattern, str(installed or "").strip(), re.I)
+    remote = re.fullmatch(pattern, str(available or "").strip(), re.I)
+
+    if not local or not remote:
+        return None
+
+    local_app = tuple(map(int, local.group(1).split(".")))
+    remote_app = tuple(map(int, remote.group(1).split(".")))
+    app_comparison = compare_numeric_tuples(local_app, remote_app)
+
+    if app_comparison:
+        return app_comparison
+
+    local_build = int(local.group(2))
+    remote_build = int(remote.group(2))
+    return (local_build > remote_build) - (local_build < remote_build)
+
+
 def version_update_available(
     installed,
     available,
@@ -486,6 +507,13 @@ def version_update_available(
 
     if installed == available:
         return False
+
+    ls_comparison = compare_linuxserver_versions(
+        installed,
+        available,
+    )
+    if ls_comparison is not None:
+        return ls_comparison < 0
 
     installed_git = (
         parse_git_describe(
@@ -1611,6 +1639,20 @@ def publish_entity(
             and local_digest
             != remote_digest
         )
+
+    # A different digest alone does not mean a newer LinuxServer build.
+    # Retain digest detection for identical versions (image rebuilds).
+    if "custom_update_available" not in local:
+        ls_comparison = compare_linuxserver_versions(
+            resolve_pretty_version(local),
+            resolve_pretty_version(remote),
+        )
+
+        if ls_comparison is not None and ls_comparison != 0:
+            update_available = ls_comparison < 0
+            if not update_available:
+                # HA derives update state from displayed version inequality.
+                latest = installed
 
     update_action = (
         local
